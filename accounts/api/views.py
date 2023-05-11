@@ -1,7 +1,10 @@
 from rest_framework.generics import (
-    RetrieveAPIView,
+    CreateAPIView,
 )
+from rest_framework import permissions
+from .serializers import UserSerializer
 
-from accounts.models import User
 
-
+class SignUpAPIView(CreateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
