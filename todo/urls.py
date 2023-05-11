@@ -1,17 +1,18 @@
 from django.urls import path
 
-from todo.api.views import (
-    TaskCreateAPIView, 
-    TaskListAPIView,
-)
 from .api.views import (
-    TaskCreateAPIView, 
-    ProjectTasksListAPIView, 
-    ProjectUserTasksListAPIView,
+    ProjectTasksListAPIView,
+    UserTasksListAPIView,
+    ProjectManagerTaskAssignAPIView,
+    ProjectListCreateAPIView, 
 )
 
+app_name = 'todo'
+
 urlpatterns = [
-    path('api/task/create/', TaskCreateAPIView.as_view(), name='create_task'),
-    path('api/<int:project_id>/tasks/', ProjectTasksListAPIView.as_view(), name='tasks_list'),
-    path('api/<int:project_id>/<str:username>/tasks/', ProjectTasksListAPIView.as_view(), name='tasks_list'),
+    path('api/project/<int:project_id>/tasks/', ProjectTasksListAPIView.as_view(), name='project-tasks'),
+    path('api/project/<int:project_id>/user/<str:username>/tasks/', UserTasksListAPIView.as_view(), name='user-tasks'),
+    path('api/task/assign/', ProjectManagerTaskAssignAPIView.as_view(), name='task-assign'),
+    path('api/projects/', ProjectListCreateAPIView.as_view(), name='task-assign'),
+
 ]
