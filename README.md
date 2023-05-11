@@ -1,8 +1,9 @@
 ### Django Todo app
 
 #### In this project I built a rest api using django restframework to serialize our todo app models.
-#### roles
-**We had two roles:** 
+
+
+**We had two roles:** \n
     - developers
     - project managers
 
