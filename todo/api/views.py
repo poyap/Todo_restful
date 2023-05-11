@@ -1,28 +1,42 @@
-from django.shortcuts import get_object_or_404
-
+from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView, 
     RetrieveAPIView,
+    ListCreateAPIView,
 )
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+
 from todo.models import Task, Project
 from todo.api.serializers import TaskSerializer, ProjectSerializer
-from .permissions import AssignTaskPermission
+from .mixins import (
+    IsProjectManagerPermissionMixin, 
+    ValidUserPermissionMixin,
+    UserQuerySetMixin, 
+)
 
 
-class ProjectTasksListAPIView(RetrieveAPIView):
+class ProjectTasksListAPIView(ValidUserPermissionMixin, UserQuerySetMixin, ListAPIView):
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
+    
+class UserTasksListAPIView(ValidUserPermissionMixin, UserQuerySetMixin, ListAPIView):
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
+
+
+class ProjectManagerTaskAssignAPIView(IsProjectManagerPermissionMixin, CreateAPIView):
+    serializer_class = TaskSerializer
+
+
+class ProjectListCreateAPIView(IsProjectManagerPermissionMixin, ListCreateAPIView):
+    """
+    List all projects or create one.
+    """
     serializer_class = ProjectSerializer
-    queryset = Project.objects.prefetch_related('tasks').all()
-
-class ProjectUserTasksListAPIView(RetrieveAPIView):
-    serializer_class = TaskSerializer
-
-    def get(self, request, *args, **kwargs):
-        self.queryset = Task.objects.prefetch_related('project').filter(developer__username=request.username)
-        return super().get(request, *args, **kwargs)
-
-class TaskCreateAPIView(CreateAPIView):
-    serializer_class = TaskSerializer
-    permission_classes = [AssignTaskPermission, ]
-
-
+    
+    def get_queryset(self, *args, **kwargs):
+        return Project.objects.filter(manager=self.request.user)
