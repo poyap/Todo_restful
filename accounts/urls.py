@@ -1,9 +1,9 @@
 from django.urls import path
 
-from accounts.api.views import (
-    UserCreateAPIView, 
-)
+from .api.views import SignUpAPIView
+
+app_name = 'accounts'
 
 urlpatterns = [
-    
+    path('api-auth/signup/', SignUpAPIView.as_view(), name='signup'),     
 ]
