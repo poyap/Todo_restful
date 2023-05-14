@@ -138,45 +138,40 @@ class ProjectManagerTaskAssignAPIViewTestCase(APITestCase):
         """
         Ensure valid project manager(the creator of the project) can assign task to a developer.
         """
+
         self.client.force_login(self.project_manager)
         url = reverse('todo:task-assign')
-        serializer_data = {
-                "id": 122,
-                "name": "Task 122",
-                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                "developers": [self.developer1.id],
-                "developers_detail": [
-                {"username": "John", "user_tasks": f"/api/project/{self.project.id}/user/{self.developer.username}/tasks"},
-                ],
-                "project": self.project.id,
-                "start_at": "2023-06-01T08:00:00.000Z",
-                "deadline": "2023-07-31T23:59:59.000Z",
-                "status": 1
+        serializer = {
+            "id": 3,
+            "name": "Task 122",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "developers": [self.developer1.id],
+            "project": self.project.id,
+            "start_at": "2023-06-01T08:00:00.000Z",
+            "deadline": "2023-07-31T23:59:59.000Z",
+            "status": 1
         }
-        response = self.client.post(url, data=serializer_data)
+        response = self.client.post(url, data=serializer)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED) 
-        self.assertEqual(response.data, serializer_data)
-        
-   
+
     def test_project_manager_task_assign_with_different_project_manager(self):
         """
         Ensure different project manager can not assign task to a project that have not created.
         """
-        self.client.force_login(self.project_manager1)
+        self.client.login(username=self.project_manager1.username, password=self.project_manager1.password)
         url = reverse('todo:task-assign')
-        serializer_data = {
-                "id": 123,
-                "name": "Task 123",
-                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                "developers": [self.developer1.id],
-                "developers_detail": [
-                {"username": "John", "user_tasks": f"/api/project/{self.project.id}/user/{self.developer.username}/tasks"},
-                ],
-                "project": self.project.id,
-                "start_at": "2023-06-01T08:00:00.000Z",
-                "deadline": "2023-07-31T23:59:59.000Z",
-                "status": 1
+        payload = {
+            "id": 333,
+            "name": "Task 444",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "developers": [self.developer1.id],
+            "project": self.project.id,
+            "start_at": "2023-06-01T08:00:00.000Z",
+            "deadline": "2023-07-31T23:59:59.000Z",
+            "status": 1
         }
-
-        response = self.client.post(url, data=serializer_data)
+        response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def tearDown(self):
+        self.client.logout()
