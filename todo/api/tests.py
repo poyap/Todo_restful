@@ -173,5 +173,3 @@ class ProjectManagerTaskAssignAPIViewTestCase(APITestCase):
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def tearDown(self):
-        self.client.logout()
