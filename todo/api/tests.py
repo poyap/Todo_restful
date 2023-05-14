@@ -147,12 +147,21 @@ class ProjectManagerTaskAssignAPIViewTestCase(APITestCase):
             "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             "developers": [self.developer1.id],
             "project": self.project.id,
-            "start_at": "2023-06-01T08:00:00.000Z",
-            "deadline": "2023-07-31T23:59:59.000Z",
+            "start_at": "2023-06-01T08:00:00Z",
+            "deadline": "2023-07-31T23:59:00Z",
             "status": 1
         }
+        tasks_created = Task.objects.count()
         response = self.client.post(url, data=serializer)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED) 
+        self.assertEqual(response.data['name'], serializer['name'])
+        self.assertEqual(response.data['description'], serializer['description'])
+        self.assertEqual(response.data['developers'], [self.developer1.id])
+        self.assertEqual(response.data['project'], self.project.id)
+        self.assertEqual(response.data['start_at'], serializer['start_at'])
+        self.assertEqual(response.data['deadline'], serializer['deadline'])
+        self.assertEqual(response.data['status'], 'In Progress')
+        self.assertEqual(Task.objects.count() , tasks_created + 1)
 
     def test_project_manager_task_assign_with_different_project_manager(self):
         """
@@ -170,6 +179,7 @@ class ProjectManagerTaskAssignAPIViewTestCase(APITestCase):
             "deadline": "2023-07-31T23:59:59.000Z",
             "status": 1
         }
+        tasks_created = Task.objects.count()
         response = self.client.post(url, data=payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
+        self.assertEqual(Task.objects.count() , tasks_created)
