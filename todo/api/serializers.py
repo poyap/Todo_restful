@@ -27,8 +27,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(STATUS_CHOICES, source='get_status_name')
-    developers_detail = serializers.SerializerMethodField()
-    
+   
     class Meta:
         model = Task
         fields = [
@@ -36,35 +35,25 @@ class TaskSerializer(serializers.ModelSerializer):
             'name', 
             'description', 
             'developers',
-            'developers_detail', 
             'project', 
             'start_at', 
             'deadline', 
             'status',
         ]
     
-    def get_developers_detail(self, obj):
-        developers = obj.developers.all()
-        return [{'username':dev.username,
-            'user_tasks':reverse('todo:user-tasks',
-            kwargs={'project_id':obj.project.id,
-            'username':dev.username},),   
-            } for dev in developers
-        ]
-        
     # add the actual field name to the validated data
     def create(self, validated_data):
-        status = validated_data.pop('get_status_name')
-        validated_data['status'] = status
+        validated_data['status'] = validated_data.pop('get_status_name')
         project = validated_data['project']
-        if project.manager.id != self.context.get('request').user.id:
+        if project.manager != self.context.get('request').user:
             raise PermissionDenied('You are not the creator of the project!!')
-            return
+
         return super().create(validated_data)
     
     # filter queryset to show only manager's projects
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        request = self.context.get('request')
-        if request:
-            self.fields['project'].queryset = Project.objects.filter(manager=request.user)
+        user = self.context.get('user')
+        if user:
+            self.fields['project'].queryset = user.projects.all()
+        
