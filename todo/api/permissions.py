@@ -4,14 +4,6 @@ from rest_framework.exceptions import PermissionDenied
 from todo.models import Project, Task
 from accounts.models import CustomUser
 
-class ProjectManagerPermission(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        if request.user.role == 1 or request.user.is_superuser:
-            return True
-        
-        raise PermissionDenied('You are not allowed to Perform this action. Only Project managers are able to do so.')
-        return False
 
 
 class ValidUserPermission(permissions.BasePermission):

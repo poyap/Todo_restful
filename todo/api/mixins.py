@@ -8,7 +8,7 @@ from .permissions import (
 
 
 class IsProjectManagerPermissionMixin:
-    permission_classes = [permissions.IsAuthenticated, ProjectManagerPermission]
+    permission_classes = [permissions.IsAuthenticated,]
 
 class ValidUserPermissionMixin:
     permission_classes = [permissions.IsAuthenticated, ValidUserPermission]
